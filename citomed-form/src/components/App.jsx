@@ -6,7 +6,7 @@ import MainContent from './MainContent';
 import { useMemo, useState } from 'react';
 
 function App() {
-    const baseLink = useMemo(() => 'https://citomed-back.onrender.com/', [])
+    const baseLink = useMemo(() => 'https://citomed-back.onrender.com', [])
 
     const [person, setPerson] = useState({
       first_name: '',

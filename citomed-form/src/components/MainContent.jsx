@@ -159,7 +159,7 @@ const MainContent = ({ person, baseLink, setPerson }) => {
                     <>
                         <div className='form_logo'>
                             <img className='imgFinal' src={logo} />
-                        </div>
+                        </div> 
                         <div style={{textAlign: 'center'}}>
                             <img style={{width: '50px'}} src={loading}></img>
                             <h1>Отправка данных.</h1>

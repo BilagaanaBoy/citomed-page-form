@@ -4,10 +4,12 @@ import { useState, useEffect } from 'react';
 import axios, { all } from 'axios';
 
 import logo from "../assets/cm_logo_norm.55800c7a53f91998bcd3.jpg";
+import loading from "../assets/fadeStaggerCircles.svg";
 
 const MainContent = ({ person, baseLink, setPerson }) => {
     const navigate = useNavigate();
     const [isSuccess, setIsSuccess] = useState(false)
+    const [isDataSend, setIsDataSend] = useState(false)
     const [check, setCheck] = useState(false)
 
     const changePersonState = (e) => {
@@ -49,13 +51,15 @@ const MainContent = ({ person, baseLink, setPerson }) => {
             if (!person[key] && key != 'additional_information') return
         }
 
-        if (check)
+        if (check){
+            setIsSuccess(true)
             axios.post(baseLink + 'create-new-user', { person }).then(r => {
                 console.log('Response:', r);
                 
-                setIsSuccess(true)
+                setIsDataSend(true)
                 setTimeout(() => { window.location.reload() }, 1500)
-        })
+            })
+        }
         else {
             alert('Подтвердите согласие на обработку персональных данных')
         }
@@ -65,97 +69,116 @@ const MainContent = ({ person, baseLink, setPerson }) => {
     return (
         <>
         <section className='form'>
-        {!isSuccess ?
-            <div className='MRL40px'>
-                <div className='form_logo'>
-                    <img src={logo} />
-                </div>
-                
-                <div className='MT15px'>
-                    <h2>Ваши ФИО</h2>
-                    <div className='form_input_gap_min'>
-                        <input name='first_name' type="text" placeholder="Имя" style={person.first_name[person.first_name.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.first_name} onChange={changePersonState}
-                            onFocus={(e) => { if (person.first_name == 'обязательное поле *') setPerson(state => ({ ...state, first_name: '' })) }}/>
-                        <input name='last_name' type="text" placeholder="Фамилия" style={person.last_name[person.last_name.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.last_name} onChange={changePersonState}
-                            onFocus={(e) => { if (person.last_name == 'обязательное поле *') setPerson(state => ({ ...state, last_name: '' })) }}/>
-                        <input name='patronymic' type="text" placeholder="Отчество" style={person.patronymic[person.patronymic.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.patronymic} onChange={changePersonState}
-                            onFocus={(e) => { if (person.patronymic == 'обязательное поле *') setPerson(state => ({ ...state, patronymic: '' })) }}/>
-                    </div>
-                </div>
-
-                <div className='MT15px'>
-                    <h2>Ваши контакты</h2>
-                    <div className='form_input_gap_min'>
-                        <IMaskInput
-                            mask={'+{7}(000)000-00-00'}
-                            radix="."
-                            value={person.tel_number}
-                            unmask={true}
-                            style={person.tel_number == '7' ? { border: '1px solid red' } : {}}
-                            onAccept={
-                            (value, mask) => setPerson(state => ({ ...state, tel_number: value }))
-                            }
-                            placeholder='Номер телефона'
-                        />
-                        <input name='email' type="text" placeholder="Адрес электронной почты" style={person.email[person.email.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.email} onChange={changePersonState}
-                            onFocus={(e) => { if (person.email == 'обязательное поле *') setPerson(state => ({ ...state, email: '' })) }}/>
-                    </div>
-                </div>
-
-                <div className='MT15px'>
-                    <h2>Информация о Вашей компании</h2>
-                    <div className='form_input_gap_max'>
-                        <input name='company' type="text" placeholder="Компания" style={person.company[person.company.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company} onChange={changePersonState}
-                            onFocus={(e) => { if (person.company == 'обязательное поле *') setPerson(state => ({ ...state, company: '' })) }}/>
-                        <input name='company_city' type="text" placeholder="Город / месторасположение компании" style={person.company_city[person.company_city.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company_city} onChange={changePersonState}
-                            onFocus={(e) => { if (person.company_city == 'обязательное поле *') setPerson(state => ({ ...state, company_city: '' })) }}/>
-                        <input name='company_activity' type="text" placeholder="Деятельность компании" style={person.company_activity[person.company_activity.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company_activity} onChange={changePersonState}
-                            onFocus={(e) => { if (person.company_activity == 'обязательное поле *') setPerson(state => ({ ...state, company_activity: '' })) }}/>
-                        <input name='position' type="text" placeholder="Ваша должность" style={person.position[person.position.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.position} onChange={changePersonState}
-                            onFocus={(e) => { if (person.position == 'обязательное поле *') setPerson(state => ({ ...state, position: '' })) }}/>
-                        <input name='web_site' type="text" placeholder="Адрес сайта" style={person.web_site[person.web_site.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.web_site} onChange={changePersonState}
-                            onFocus={(e) => { if (person.web_site == 'обязательное поле *') setPerson(state => ({ ...state, web_site: '' })); else if (person.web_site == '') setPerson(state => ({ ...state, web_site: 'www.' })) }}/>
-                    </div>
-                </div>
-
-                <div className='MT15px'>
-                    <h2>Дополнительная информация</h2>
-                    <div className='form_input_gap_max'>
-                        <input name='interest' type="text" placeholder="Продукты в которых Вы заинтересованы" style={person.interest[person.interest.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.interest} onChange={changePersonState}
-                            onFocus={(e) => { if (person.interest == 'обязательное поле *') setPerson(state => ({ ...state, interest: '' })) }}/>
-                        <input value={person.additional_information} onChange={changePersonState} name='additional_information' type="text" placeholder="Дополнительная информация"/>
-                    </div>
-                </div>
-
-                <div className='form_submit_and_private_police'>
-                    <div style={{display: 'flex', flexDirection: 'row'}}>
-                        <div style={{marginRight: '20px'}}>
-                            <label className="custom-checkbox">Согласие на обработку персональных данных
-                                <input type="checkbox" name="myCheckbox" checked={check} onChange={() => setCheck(!check)}/>
-                                <span className="checkmark"></span>
-                            </label>
-                        </div>
-
-                        <div>
-                            <a onClick={() => navigate('private-police')}>Политика конфиденциальности и обработки персональных данных</a>
-                        </div>
+        {!isSuccess ? (
+            <>
+                <div className='MRL40px'>
+                    <div className='form_logo'>
+                        <img src={logo} />
                     </div>
                     
-
-                    <div className='MT15Button'>
-                        <button onClick={sendUserData} >Отправить</button>
+                    <div className='MT15px'>
+                        <h2>Ваши ФИО</h2>
+                        <div className='form_input_gap_min'>
+                            <input name='first_name' type="text" placeholder="Имя" style={person.first_name[person.first_name.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.first_name} onChange={changePersonState}
+                                onFocus={(e) => { if (person.first_name == 'обязательное поле *') setPerson(state => ({ ...state, first_name: '' })) }}/>
+                            <input name='last_name' type="text" placeholder="Фамилия" style={person.last_name[person.last_name.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.last_name} onChange={changePersonState}
+                                onFocus={(e) => { if (person.last_name == 'обязательное поле *') setPerson(state => ({ ...state, last_name: '' })) }}/>
+                            <input name='patronymic' type="text" placeholder="Отчество" style={person.patronymic[person.patronymic.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.patronymic} onChange={changePersonState}
+                                onFocus={(e) => { if (person.patronymic == 'обязательное поле *') setPerson(state => ({ ...state, patronymic: '' })) }}/>
+                        </div>
                     </div>
-                </div>
-            </div> : <>
-                <div className='form_logo'>
-                    <img className='imgFinal' src={logo} />
-                </div>
-                <div>
-                    <h1>Данные успешно переданы!</h1>
-                    <h1>Спасибо!</h1>
-                </div>
+
+                    <div className='MT15px'>
+                        <h2>Ваши контакты</h2>
+                        <div className='form_input_gap_min'>
+                            <IMaskInput
+                                mask={'+{7}(000)000-00-00'}
+                                radix="."
+                                value={person.tel_number}
+                                unmask={true}
+                                style={person.tel_number == '7' ? { border: '1px solid red' } : {}}
+                                onAccept={
+                                (value, mask) => setPerson(state => ({ ...state, tel_number: value }))
+                                }
+                                placeholder='Номер телефона'
+                            />
+                            <input name='email' type="text" placeholder="Адрес электронной почты" style={person.email[person.email.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.email} onChange={changePersonState}
+                                onFocus={(e) => { if (person.email == 'обязательное поле *') setPerson(state => ({ ...state, email: '' })) }}/>
+                        </div>
+                    </div>
+
+                    <div className='MT15px'>
+                        <h2>Информация о Вашей компании</h2>
+                        <div className='form_input_gap_max'>
+                            <input name='company' type="text" placeholder="Компания" style={person.company[person.company.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company} onChange={changePersonState}
+                                onFocus={(e) => { if (person.company == 'обязательное поле *') setPerson(state => ({ ...state, company: '' })) }}/>
+                            <input name='company_city' type="text" placeholder="Город / месторасположение компании" style={person.company_city[person.company_city.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company_city} onChange={changePersonState}
+                                onFocus={(e) => { if (person.company_city == 'обязательное поле *') setPerson(state => ({ ...state, company_city: '' })) }}/>
+                            <input name='company_activity' type="text" placeholder="Деятельность компании" style={person.company_activity[person.company_activity.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.company_activity} onChange={changePersonState}
+                                onFocus={(e) => { if (person.company_activity == 'обязательное поле *') setPerson(state => ({ ...state, company_activity: '' })) }}/>
+                            <input name='position' type="text" placeholder="Ваша должность" style={person.position[person.position.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.position} onChange={changePersonState}
+                                onFocus={(e) => { if (person.position == 'обязательное поле *') setPerson(state => ({ ...state, position: '' })) }}/>
+                            <input name='web_site' type="text" placeholder="Адрес сайта" style={person.web_site[person.web_site.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.web_site} onChange={changePersonState}
+                                onFocus={(e) => { if (person.web_site == 'обязательное поле *') setPerson(state => ({ ...state, web_site: '' })); else if (person.web_site == '') setPerson(state => ({ ...state, web_site: 'www.' })) }}/>
+                        </div>
+                    </div>
+
+                    <div className='MT15px'>
+                        <h2>Дополнительная информация</h2>
+                        <div className='form_input_gap_max'>
+                            <input name='interest' type="text" placeholder="Продукты в которых Вы заинтересованы" style={person.interest[person.interest.length - 1] == '*' ? { border: '1px solid red' } : {}} value={person.interest} onChange={changePersonState}
+                                onFocus={(e) => { if (person.interest == 'обязательное поле *') setPerson(state => ({ ...state, interest: '' })) }}/>
+                            <input value={person.additional_information} onChange={changePersonState} name='additional_information' type="text" placeholder="Дополнительная информация"/>
+                        </div>
+                    </div>
+
+                    <div className='form_submit_and_private_police'>
+                        <div style={{display: 'flex', flexDirection: 'row'}}>
+                            <div style={{marginRight: '20px'}}>
+                                <label className="custom-checkbox">Согласие на обработку персональных данных
+                                    <input type="checkbox" name="myCheckbox" checked={check} onChange={() => setCheck(!check)}/>
+                                    <span className="checkmark"></span>
+                                </label>
+                            </div>
+
+                            <div>
+                                <a onClick={() => navigate('private-police')}>Политика конфиденциальности и обработки персональных данных</a>
+                            </div>
+                        </div>
+                        
+
+                        <div className='MT15Button'>
+                            <button onClick={sendUserData} >Отправить</button>
+                        </div>
+                    </div>
+                </div> 
+            </>
+            ) : (
+                <>
+                {(!isDataSend) ? (
+                    <>
+                        <div className='form_logo'>
+                            <img className='imgFinal' src={logo} />
+                        </div>
+                        <div style={{textAlign: 'center'}}>
+                            <img style={{width: '50px'}} src={loading}></img>
+                            <h1>Отправка данных.</h1>
+                        </div>   
+                    </> 
+                ) : (
+                    <>
+                        <div className='form_logo'>
+                            <img className='imgFinal' src={logo} />
+                        </div>
+                        <div style={{textAlign: 'center'}}>
+                            <h1>Данные успешно переданы!</h1>
+                            <h1>Спасибо!</h1>
+                        </div>   
+                    </> 
+                )}
+                </>
                 
-            </>}
+            )}
         </section>
         </>
     )
